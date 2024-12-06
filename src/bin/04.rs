@@ -9,11 +9,11 @@ fn find_word(
     size: (usize, usize),
     map: &Vec<&str>,
 ) -> bool {
-    if map[pos.1].chars().nth(pos.0) == word.chars().nth(0) {
+    if map[pos.1].chars().nth(pos.0) == word.chars().next() {
         let next_slice = &word[1..];
-        if next_slice.len() > 0 {
-            let x = pos.0 as i32 + dir.0 as i32;
-            let y = pos.1 as i32 + dir.1 as i32;
+        if !next_slice.is_empty() {
+            let x = pos.0 as i32 + dir.0;
+            let y = pos.1 as i32 + dir.1;
             if x >= 0 && x < size.0 as i32 && y >= 0 && y < size.1 as i32 {
                 find_word(next_slice, (x as usize, y as usize), dir, size, map)
             } else {
