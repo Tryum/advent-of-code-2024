@@ -78,8 +78,7 @@ fn parse_map(input: &str) -> Map {
 
     let mut obstacles = HashSet::new();
 
-    for i in 0..lines.len() {
-        let line = lines[i];
+    for (i, line) in lines.iter().enumerate() {
         for j in 0..line.len() {
             match line.chars().nth(j) {
                 Some('#') => {
