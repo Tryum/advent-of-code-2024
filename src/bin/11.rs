@@ -2,9 +2,21 @@ use std::collections::HashMap;
 
 advent_of_code::solution!(11);
 
-fn blink_stone(s: u64, blink_count: u32, memo: &mut HashMap<(u64, u32), u64>) -> u64 {
+struct CacheHit {
+    requests: u64,
+    hits: u64,
+}
+
+fn blink_stone(
+    s: u64,
+    blink_count: u32,
+    memo: &mut HashMap<(u64, u32), u64>,
+    stats: &mut CacheHit,
+) -> u64 {
     let result;
+    stats.requests += 1;
     if memo.contains_key(&(s, blink_count)) {
+        stats.hits += 1;
         return memo[&(s, blink_count)];
     } else if blink_count == 1 {
         let stone_as_string = s.to_string();
@@ -14,15 +26,15 @@ fn blink_stone(s: u64, blink_count: u32, memo: &mut HashMap<(u64, u32), u64>) ->
             result = 1;
         }
     } else if s == 0 {
-        result = blink_stone(1, blink_count - 1, memo);
+        result = blink_stone(1, blink_count - 1, memo, stats);
     } else {
         let stone_as_string = s.to_string();
         if stone_as_string.len() % 2 == 0 {
             let (lhs, rhs) = stone_as_string.split_at(stone_as_string.len() / 2);
-            result = blink_stone(lhs.parse().unwrap(), blink_count - 1, memo)
-                + blink_stone(rhs.parse().unwrap(), blink_count - 1, memo);
+            result = blink_stone(lhs.parse().unwrap(), blink_count - 1, memo, stats)
+                + blink_stone(rhs.parse().unwrap(), blink_count - 1, memo, stats);
         } else {
-            result = blink_stone(s * 2024, blink_count - 1, memo);
+            result = blink_stone(s * 2024, blink_count - 1, memo, stats);
         }
     }
     memo.insert((s, blink_count), result);
@@ -39,9 +51,21 @@ fn solve_day11(input: &str, blink_count: u32) -> Option<u64> {
 
     let mut result = 0;
 
+    let mut stats = CacheHit {
+        hits: 0,
+        requests: 0,
+    };
+
     for s in &stones {
-        result += blink_stone(*s, blink_count, &mut memo);
+        result += blink_stone(*s, blink_count, &mut memo, &mut stats);
     }
+
+    println!(
+        "{} requests, {} hits : {}%",
+        stats.requests,
+        stats.hits,
+        100 * stats.hits / stats.requests
+    );
 
     Some(result)
 }
